@@ -1,8 +1,16 @@
+import Solver.Problem;
 
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		Problem instance = new Problem();
+		String filePath = "C:\\Users\\franu_000\\git\\Project_Factorizer\\5b_2d.txt";
+		
+		instance.readFile(filePath);
+		
+		instance.solve();
+
+		System.out.println(instance.result());
 
 	}
 
