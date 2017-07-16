@@ -1,0 +1,104 @@
+public void union(int p, int q){
+
+	//find father in union forest
+	int rootP = find(p);
+	int rootQ = find(q);
+
+	//find the enemy in disjunction forest
+	int enemyP = enemy(p);
+	int enemyQ = enemy(q); 
+
+	if(rootP == rootQ) return; //already in same union tree
+	if(enemyP == rootQ || enemyQ == rootP) return; //ERROR: union not possible between enemies.
+
+	/*
+	case 1: none of them has enemy
+	*/
+	if(enemyP == -1 && enemyQ == -1) {
+		unionStandard(rootP, rootQ);
+		return;
+	}
+
+	/*
+	case 2: one has an enemy
+	*/
+	// P has enemy
+	if(enemyP != -1 && enemyQ == -1) {
+		unionOneEnemy(rootP, rootQ);
+		return;
+	}
+	// Q has enemy
+	if(enemyQ != -1 && enemyP == -1) {
+		unionOneEnemy(rootQ, rootP);
+		return;
+	}
+	/*
+	case 3: both have enemies
+	*/
+	//case 3.a) different enemies
+	if(enemyQ != -1 && enemyP != -1 && enemyP != enemyQ) {
+		unionTwoEnemies(rootP, rootQ);
+		return;
+	}
+	if(enemyQ != -1 && enemyP != -1 && enemyP == enemyQ) { //should never happen if disjunction is well implemented
+		unionTwoEnemiesEquals(rootP, rootQ);
+	}
+}
+
+public void unionStandard(int rootP, int rootQ) {
+    // make smaller root point to larger one
+	if (size[rootP] < size[rootQ]) {
+        parent[rootP] = rootQ;
+        size[rootQ] += size[rootP];
+    }
+    else {
+        parent[rootQ] = rootP;
+        size[rootP] += size[rootQ];
+    }
+    count--;
+}
+
+
+//rootP must be the on with the enemy
+public void unionOneEnemy(int rootP, int rootQ) {
+
+	if(size[rootP] < size[rootQ]) {
+		parent[rootP] = rootQ;
+		size[rootQ]+=size[rootP];
+		
+		nemesis[nemesis[rootP]]=rootQ; // the new enemy of the (old) enemy of P in now Q, the biggest
+		//or also:
+		//nemesis[enemy(rootP)]=rootQ;
+		nemesis[rootQ]=nemesis[rootP]; // Q inherits the enemy of P
+		nemesis[rootP] = -1; // enemy of P is resetted to -1
+	} else {
+		parent[rootQ]=rootP;
+		size[rootP]+=size[rootQ];
+	}
+
+}
+
+public void unionTwoEnemies(int rootP, int rootQ) {
+
+	int x = nemesis[rootP];
+	int y = nemesis[rootQ];
+	//reset enemy for secondary members, MAYBE UNNECESSARY: will be overwritted during unionOneEnemy
+	nemesis[y] = nemesis[rootQ] = -1;
+	//assign enemy for union, MAYBE UNNECESSARY: is already assigned
+	nemesis[x] = rootP;
+	nemesis[rootP] = x;
+
+	unionOneEnemy(x, y);
+	unionOneEnemy(rootP, rootQ);
+
+}
+
+public void unionTwoEnemiesEquals(int rootP, int rootQ) {
+
+	unionOneEnemy(rootP, rootQ);
+	if(nemesis[rootP] != -1) {
+		nemesis[nemesis[rootP]] = rootP;
+	}
+	else
+		nemesis[nemesis[rootQ]] = rootQ;
+}
