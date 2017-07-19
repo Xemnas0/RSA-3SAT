@@ -59,7 +59,7 @@ public void unionStandard(int rootP, int rootQ) {
 }
 
 
-//rootP must be the on with the enemy
+//rootP must be the one with the enemy
 public void unionOneEnemy(int rootP, int rootQ) {
 
 	if(size[rootP] < size[rootQ]) {
@@ -74,6 +74,8 @@ public void unionOneEnemy(int rootP, int rootQ) {
 	} else {
 		parent[rootQ]=rootP;
 		size[rootP]+=size[rootQ];
+		nemesis[nemesis[rootQ]]=rootP;
+		nemesis[rootQ]=-1; 
 	}
 
 }
