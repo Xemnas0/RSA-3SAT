@@ -149,7 +149,7 @@ public class QUForest {
 			return; // already in same union tree
 		if (enemyP == rootQ || enemyQ == rootP)
 			return; // ERROR: union not possible between enemies.
-
+		--count;
 		/*
 		 * case 1: none of them has enemy
 		 */
@@ -258,7 +258,7 @@ public class QUForest {
 			return; // already enemy
 		if (rootP == rootQ)
 			return; // ERROR: 2 equals cannot be different
-
+		--count;
 		/*
 		 * case 1: none of them has enemy
 		 */
@@ -371,20 +371,22 @@ public class QUForest {
 		/*
 		 * DEBUG
 		 */
-		/*
+		
 		System.out.println("parent:\n"+Arrays.toString(parent));
 		System.out.println("enemy:\n" + Arrays.toString(enemy));
 		System.out.println("prints:\n" + Arrays.asList(v));
 		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
-		*/
+		
 		
 		String ret = Arrays.asList(v).stream().filter(s -> s != null).filter(s -> !s.toString().isEmpty()).collect(Collectors.joining("\n"));
 		return ret;
 	}
 
 	public String progress() {
-		double done = Arrays.stream(enemy).filter(s -> s != -1).count() / 2 + count();
-		return String.format("%.2f", (1 - done / n) * 100) + "%";
+		
+		//for n = 10 are needed n-1=9 relations
+		double done = (double) n-count();
+		return String.format("%.2f", (done /(n-1)) * 100) + "%";
 	}
 
 }
