@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class Problem {
 
-	private List<Variable> variables = new ArrayList<Variable>();
+	private SortedMap<Integer, Variable> variables = new TreeMap<Integer, Variable>();
 	private List<Clause> clauses = new ArrayList<Clause>();
 	private QUForest qu;
 
@@ -28,7 +30,7 @@ public class Problem {
 	public void readFile(String path) {
 
 		long t1 = System.nanoTime();
-		
+
 		try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
 
 			String line;
@@ -46,6 +48,10 @@ public class Problem {
 				if (line.startsWith("p")) {
 					int n = Integer.decode(fields[2]);
 					qu = new QUForest(n);
+
+					for (int i = 0; i < n; ++i)
+						variables.put(i, new Variable(i));
+
 					continue;
 				}
 
@@ -65,24 +71,48 @@ public class Problem {
 					clause.insertRow(vars);
 				} else {
 					clauses.add(clause);
+					//System.out.println("adding:\n" + clause.print());
+					// System.out.println("compare:\n"+clauses.get(clauses.size()-1).print());
+
+					clause.getVars().stream().map(s -> s - 1).forEach(s -> {
+						//System.out.println("Incremento:\n" + (s + 1));
+						variables.get(s).addClause(clauses.get(clauses.size() - 1));
+					});
 					clause = new Clause(vars);
 					clause.insertRow(vars);
-					continue;
 				}
 
 			}
+			
+			//this is for the last row
+			clauses.add(clause);
+			clause.getVars().stream().map(s -> s - 1).forEach(s -> {
+				System.out.println("Incremento:\n"+(s+1));
+				variables.get(s).addClause(clauses.get(clauses.size() - 1));
+			});
+			
 		} catch (IOException e) {
 			System.err.println("Error during file reading: " + path);
 		}
 		
-		long t2= System.nanoTime();
-		
-		System.out.println(String.format("File read in: %.2f seconds.", (double)(t2-t1)/Math.pow(10, 9)));
-		
+		long t2 = System.nanoTime();
+
+		System.out.println(String.format("File read in: %.2f seconds.", (double) (t2 - t1) / Math.pow(10, 9)));
+
+	}
+
+	public String printClauses() {
+		return clauses.stream().map(s -> s.print()).collect(Collectors.joining("\n"));
+	}
+
+	public String printPresentsOfVariables() {
+		return variables.values().stream()
+				.map(s -> "Variable " + (s.getId() + 1) + " appears in " + s.presentInNClauses() + " clauses.")
+				.collect(Collectors.joining("\n"));
 	}
 
 	public String result() {
-		return clauses.stream().map(s -> s.print()).collect(Collectors.joining("\n"));
+		return null;
 	}
 
 }

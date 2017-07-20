@@ -15,7 +15,8 @@ public class Main {
 		instance.readFile(filePath);
 		
 		instance.solve();
-
+		
+		System.out.println(instance.printPresentsOfVariables());
 		//System.out.println(instance.result());
 	}
 
