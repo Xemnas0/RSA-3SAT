@@ -188,7 +188,7 @@ public class QUForest {
 		}
 	}
 
-	public void unionStandard(int rootP, int rootQ) {
+	private void unionStandard(int rootP, int rootQ) {
 		// make smaller root point to larger one
 		if (size[rootP] < size[rootQ]) {
 			parent[rootP] = rootQ;
@@ -201,7 +201,7 @@ public class QUForest {
 	}
 
 	// rootP must be the one with the enemy
-	public void unionOneEnemy(int rootP, int rootQ) {
+	private void unionOneEnemy(int rootP, int rootQ) {
 
 		if (size[rootP] < size[rootQ]) {
 			parent[rootP] = rootQ;
@@ -221,7 +221,7 @@ public class QUForest {
 
 	}
 
-	public void unionTwoEnemies(int rootP, int rootQ) {
+	private void unionTwoEnemies(int rootP, int rootQ) {
 
 		int x = enemy[rootP];
 		int y = enemy[rootQ];
@@ -237,7 +237,7 @@ public class QUForest {
 
 	}
 
-	public void unionTwoEnemiesEquals(int rootP, int rootQ) {
+	private void unionTwoEnemiesEquals(int rootP, int rootQ) {
 
 		unionOneEnemy(rootP, rootQ);
 		if (enemy[rootP] != -1) {
@@ -313,10 +313,17 @@ public class QUForest {
 	 * continue; uf.union(p, q); StdOut.println(p + " " + q); }
 	 * StdOut.println(uf.count() + " components"); }
 	 */
-
+	
+	
+	/**
+	 * Gives information about the current relations in the system.
+	 * @return A string containing all the relations. Equalities have =, inequalities have !=. Everything is grouped together.
+	 */
 	public String currentState() {
 		StringBuilder[] v = new StringBuilder[n];
-
+		
+		
+		// management of equalities
 		for (int i = 0; i < n; ++i) {
 			if (i == parent[i]) { // he is parent of himself
 				if (v[i] == null) { // alone at the moment
@@ -337,6 +344,7 @@ public class QUForest {
 		}
 		
 		//System.out.println("prints before:\n" + Arrays.asList(v));
+		
 		for(int i=0; i < n; ++i) {
 			if(v[i] != null) {
 				if(!v[i].toString().isEmpty()) {
@@ -345,7 +353,7 @@ public class QUForest {
 			}
 		}
 		//System.out.println("prints after:\n" + Arrays.asList(v));
-		
+		// management of inequalities
 		for (int i = 0; i < n; ++i) {
 
 			if (enemy[i] == -1)
@@ -371,17 +379,21 @@ public class QUForest {
 		/*
 		 * DEBUG
 		 */
-		
+		/*
 		System.out.println("parent:\n"+Arrays.toString(parent));
 		System.out.println("enemy:\n" + Arrays.toString(enemy));
 		System.out.println("prints:\n" + Arrays.asList(v));
 		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
-		
+		*/
 		
 		String ret = Arrays.asList(v).stream().filter(s -> s != null).filter(s -> !s.toString().isEmpty()).collect(Collectors.joining("\n"));
 		return ret;
 	}
-
+	
+	/**
+	 * Gives information about the total number of current existing relations.
+	 * @return A string containing {@code"xx,xx%"} that indicates </br>{@code (# of relations)/(# of variables)}
+	 */
 	public String progress() {
 		
 		//for n = 10 are needed n-1=9 relations

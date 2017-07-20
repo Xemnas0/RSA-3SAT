@@ -46,16 +46,24 @@ public class QUForestTest {
 		assertTrue("1 e 2 sono sconnessi", tm.connected(1, 2));
 		assertEquals("Ci sono 9 componenti", 9, tm.count());
 		*/
-		tm.disj(0, 1);
+		tm.disj(1, 0);
 		System.out.println("StateInTest:\n"+tm.currentState());
-		tm.union(2, 1);
+		tm.disj(2, 4);
 		System.out.println("StateInTest:\n"+tm.currentState());
-		tm.disj(4, 2);
+		tm.disj(0, 2);
 		System.out.println("StateInTest:\n"+tm.currentState());
+		tm.union(0, 7);
+		System.out.println("StateInTest:\n"+tm.currentState());
+		tm.disj(5, 8);
+		System.out.println("StateInTest:\n"+tm.currentState());
+		tm.union(5, 2);
+		System.out.println("StateInTest:\n"+tm.currentState());
+		
+		
 		//tm.union(0, 1);
 		
 		//System.out.println(tm.count());
-		
+		System.out.println("Final progress: "+tm.progress());
 		log.info("@Test: ended testConnected().");
 	}
 
