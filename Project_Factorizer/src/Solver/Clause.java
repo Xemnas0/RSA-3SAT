@@ -3,10 +3,13 @@ package Solver;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 public class Clause {
 
+	
+	Problem problem;
 	// are the vars (column) in the clause. They start from id=0.
 	private List<Integer> vars = new ArrayList<Integer>();
 
@@ -18,8 +21,9 @@ public class Clause {
 	 * @param variables
 	 *            in normal form (starting from 1).
 	 */
-	public Clause(List<Integer> variables) {
+	public Clause(List<Integer> variables, Problem problem) {
 		vars = variables.stream().map(s -> Math.abs(s) - 1).collect(Collectors.toList());
+		this.problem=problem;
 	}
 
 	public void insertRow(List<Integer> values) {
@@ -131,4 +135,97 @@ public class Clause {
 	public int totSize() {
 		return signs.size()*vars.size();
 	}
+	
+	public int nColumn() {
+		return vars.size();
+	}
+
+	
+	/**
+	 * This method is called only for grouped Clause of dimension 2x2.
+	 * It says what to do!
+	 * @return 0 for union.
+	 * </br>1 for disjunction.
+	 * </br>2 for first variable equal to false.
+	 * </br>3 for first variable equal to true.
+	 * </br>4 for second variable equal to false.
+	 * </br>5 for second variable equal to true.
+	 * </br>-1 for... ERROR ò.ò.
+	 */
+	public int whatToDo() {
+		
+		List<Boolean> row0 = signs.get(0);
+		List<Boolean> row1 = signs.get(1);
+		
+		
+		/*
+		 * case 0: union
+		 * 	 x -y
+		 * 	-x  y
+		 * or
+		 * 	-x  y
+		 * 	 x -y
+		 */
+		if((row0.get(0) && !row0.get(1) && !row1.get(0) && row1.get(1))
+				|| (!row0.get(0) && row0.get(1) && row1.get(0) && !row1.get(1)))
+			return 0;
+		
+		/*
+		 * case 1: disjunction
+		 * 	 x  y
+		 * 	-x -y
+		 * or
+		 * 	-x -y
+		 *   x  y
+		 */
+		if((row0.get(0) && row0.get(1) && !row1.get(0) && !row1.get(1))
+				|| (!row0.get(0) && !row0.get(1) && row1.get(0) && row1.get(1)))
+			return 1;
+		
+		/*
+		 * case 2: first variable equal to false
+		 *  -x  y
+		 *  -x -y
+		 */
+		if(!row0.get(0) && !row1.get(0))
+			return 2;
+		
+		/*
+		 * case 3: first variable equal to true
+		 *   x  y
+		 *   x -y
+		 */
+		if(row0.get(0) && row1.get(0))
+			return 3;
+		
+		/*
+		 * case 4: second variable equal to false
+		 *   x -y
+		 *  -x -y
+		 */
+		if(!row0.get(1) && !row1.get(1))
+			return 4;
+		
+		/*
+		 * case 5: second variable equal to true
+		 *   x  y
+		 *  -x  y
+		 */
+		if(row0.get(1) && row1.get(1))
+			return 5;
+		
+		return -1;
+	}
+	
+	public void emptyVarOfClause() {
+		
+		SortedMap<Integer, Variable> tmpMap = problem.getVarsMap();
+		
+		vars.stream().forEach(s->{
+			tmpMap.get(s).removeClause(this);
+		});
+		//TODO
+		return;
+	}
+	
 }

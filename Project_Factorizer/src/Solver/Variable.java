@@ -49,4 +49,12 @@ public class Variable {
 		clauses.clear();
 	}
 	
+	public List<Clause> clauses() {
+		return clauses;
+	}
+
+	public void removeClause(Clause clause) {
+		clauses.remove(clause);
+	}
+	
 }

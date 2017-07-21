@@ -43,10 +43,12 @@ public class Problem {
 	
 	
 	public void solve() {
-
+		
 		solveMonoClause();
 		cleanEmptyClause();
-		
+		sortClauses();
+		//System.out.println("BeforeBefore:\n"+this.printPresentsOfVariables());
+		//System.out.println(this.printClauses());
 		firstBitIsOne();
 		
 		//System.out.println(this.printClauses());
@@ -54,9 +56,34 @@ public class Problem {
 		sortClauses();
 		
 		//System.out.println(this.printClauses());
+		
+		//System.out.println("Before:\n"+this.printPresentsOfVariables());
+		List<Clause> toRemove = new ArrayList<Clause>();
+		clauses.stream().filter(s->s.nColumn()==2).forEach(s->{
+			int whatToDo = s.whatToDo();
+			doWhatMustbeDone(whatToDo, s);
+			toRemove.add(s);
+		});
+		
+		toRemove.stream().forEach(s->{
+			s.emptyVarOfClause();
+			clauses.remove(s);
+		});
+		
+		//System.out.println("After:\n"+this.printPresentsOfVariables());
+		sortClauses();
+		//System.out.println(this.printClauses());
+		//System.out.println(this.printClauses());
+		//System.out.println(this.relationsInfo());
+		//System.out.println(this.getInfo());
+		
 		// TODO to complete
 		
+		
+		
 		decodeResult();
+		
+		
 		
 		if(resultIsValid())
 			System.out.println("Problem Solved!!!");
@@ -66,6 +93,37 @@ public class Problem {
 		return;
 	}
 	
+	private void doWhatMustbeDone(int whatToDo, Clause clause) {
+		
+		List<Integer> vars = clause.getVars();
+		int v1=vars.get(0);
+		int v2=vars.get(1);
+		
+		switch (whatToDo) {
+		case 0:
+			qu.union(v1, v2);
+			break;
+		case 1:
+			qu.disj(v1, v2);
+			break;
+		case 2:
+			assignVariable(v1, false);
+			break;
+		case 3:
+			assignVariable(v1, true);
+			break;
+		case 4:
+			assignVariable(v2, false);
+			break;
+		case 5:
+			assignVariable(v2, true);
+			break;
+		default:
+			System.err.println("Error in Problem.doWhatMustBeDone()");
+			break;
+		}
+	}
+
 	private void firstBitIsOne() {
 		assignVariable(startIndexP, true);
 		assignVariable(startIndexQ, true);
@@ -144,7 +202,7 @@ public class Problem {
 					vars.remove(vars.size() - 1);
 
 				if (clause == null) {
-					clause = new Clause(vars);
+					clause = new Clause(vars,this);
 					clause.insertRow(vars);
 					continue;
 				}
@@ -160,7 +218,7 @@ public class Problem {
 						// System.out.println("Incremento:\n" + (s + 1));
 						variables.get(s).addClause(clauses.get(clauses.size() - 1));
 					});
-					clause = new Clause(vars);
+					clause = new Clause(vars,this);
 					clause.insertRow(vars);
 				}
 
@@ -372,4 +430,7 @@ public class Problem {
 		return p.multiply(q).equals(n);
 	}
 	
+	public SortedMap<Integer, Variable> getVarsMap() {
+		return variables;
+	}
 }
