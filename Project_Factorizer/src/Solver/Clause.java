@@ -48,6 +48,10 @@ public class Clause {
 		return vars.stream().filter(s -> !this.vars.contains(Math.abs(s))).count() == 0;
 	}
 	
+	public int getNumInternalClauses() {
+		return signs.size();
+	}
+	
 	public List<Integer> getVars() {
 		return vars;
 	}
