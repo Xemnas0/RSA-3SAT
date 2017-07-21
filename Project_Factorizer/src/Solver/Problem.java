@@ -14,6 +14,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import com.sun.javafx.binding.SelectBinding.AsString;
+
 public class Problem {
 
 	// map <IdVar, Var>
@@ -36,12 +38,16 @@ public class Problem {
 	private BigInteger p;
 	// second prime factor
 	private BigInteger q;
+	// position of p and q in variables
+	int startIndexP, endIndexP, startIndexQ, endIndexQ;
 	
 	
 	public void solve() {
 
 		solveMonoClause();
 		cleanEmptyClause();
+		
+		firstBitIsOne();
 		
 		//System.out.println(this.printClauses());
 		
@@ -52,7 +58,19 @@ public class Problem {
 		
 		decodeResult();
 		
+		if(resultIsValid())
+			System.out.println("Problem Solved!!!");
+		else
+			System.out.println("Problem Not Solved :(");
+		
 		return;
+	}
+	
+	private void firstBitIsOne() {
+		assignVariable(startIndexP, true);
+		assignVariable(startIndexQ, true);
+		qu.union(startIndexP, posVarId);
+		qu.union(startIndexQ, posVarId);
 	}
 
 
@@ -160,10 +178,23 @@ public class Problem {
 		}
 
 		long t2 = System.nanoTime();
-
+		
+		initializeIndexResult();
+		
 		System.out.println(String.format("File read in: %.3f ms.", (double) (t2 - t1) / Math.pow(10, 6)));
 
 	}
+
+	private void initializeIndexResult() {
+		int nBitProduct = n.bitLength();
+		startIndexP = 0;
+		endIndexP = nBitProduct-1-1;
+		startIndexQ = endIndexP+1;
+		endIndexQ = (int) (startIndexQ+ Math.ceil((double)nBitProduct/2))-1;
+		
+	}
+
+
 
 	public String printClauses() {
 		return clauses.stream().map(s -> s.print()).collect(Collectors.joining("\n"));
@@ -306,11 +337,7 @@ public class Problem {
 	
 	private void decodeResult() {
 		
-		int nBitProduct = n.bitLength();
-		int startIndexP = 0;
-		int endIndexP = nBitProduct-1-1;
-		int startIndexQ = endIndexP+1;
-		int endIndexQ = (int) (startIndexQ+ Math.ceil((double)nBitProduct/2))-1;
+
 		/*
 		System.out.println(String.format(
 				"nBitProduct: %d\n"
@@ -339,6 +366,10 @@ public class Problem {
 		
 		//System.out.println("pStr="+p+"\nqStr="+q);
 		//System.out.println("p="+this.p+"\nq="+this.q);
+	}
+	
+	private boolean resultIsValid() {
+		return p.multiply(q).equals(n);
 	}
 	
 }
