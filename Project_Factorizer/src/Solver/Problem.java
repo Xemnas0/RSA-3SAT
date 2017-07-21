@@ -3,6 +3,7 @@ package Solver;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +30,9 @@ public class Problem {
 	private int posVarId;
 	// a variable that has value=false
 	private int negVarId;
+	// number to factorize
+	private BigInteger product;
+	
 	
 	public void solve() {
 
@@ -39,7 +43,7 @@ public class Problem {
 		
 		sortClauses();
 		
-		System.out.println(this.printClauses());
+		//System.out.println(this.printClauses());
 		// TODO to complete
 		return;
 	}
@@ -75,16 +79,26 @@ public class Problem {
 
 			String line;
 			Clause clause = null;
+			int numberLine=0;
 
 			while ((line = reader.readLine()) != null) {
-
+				
+				++numberLine;
+				
+				String[] fields = line.split(" ");
+				
 				if (line.startsWith("c")) {
 					// is a comment
-					// System.out.println(line);
+					System.out.println(line);
+					
+					if(numberLine == 4) {
+						
+					}
+					
 					continue;
 				}
 
-				String[] fields = line.split(" ");
+				
 				if (line.startsWith("p")) {
 					nTotVars = Integer.decode(fields[2]);
 					nTotClauses = Integer.decode(fields[3]);
@@ -192,12 +206,37 @@ public class Problem {
 
 	public String getInfo() {
 		return String.format(
-				"getCurrentClause(): %d\ngetCurrentCompressedClause(): %d\ngetnTotClauses(): %d\ngetnToVars(): %d\n",
-				getCurrentClause(), getCurrentCompressedClause(), getnTotClauses(), getnTotVars());
+				"==========START INFO==========\n"
+				+ "Total Clauses: %d\n"
+				+ "Remaining Clauses: %d (%.2f%%)\n"
+				+ "Eliminated Clauses: %d (%.2f%%)\n"
+				+ "Total Compressed Clauses: %d\n"
+				+ "Remaining Compressed Clauses: %d (%.2f%%)\n"
+				+ "Eliminated Compressed Clauses: %d (%.2f%%)\n"
+				+ "Total Variables: %d\n"
+				+ "Remaining Variables: %d (%.2f%%)\n"
+				+ "Assigned Variables: %d (%.2f%%)\n"
+				+ "Number of relations: %d (%.2f%%)\n"
+				+ "===========END INFO===========",
+				getnTotClauses(), 
+				getCurrentClause(), (double) getCurrentClause()*100/getnTotClauses(),
+				getnTotClauses()-getCurrentClause(), (double) (getnTotClauses()-getCurrentClause())*100/getnTotClauses(),
+				getnTotVars(),
+				getCurrentCompressedClause(), (double) getCurrentCompressedClause()*100/getnTotVars(),
+				getnTotVars()-getCurrentCompressedClause(), (double) (getnTotVars()-getCurrentCompressedClause())*100/getnTotVars(),
+				getnTotVars(),
+				getnTotVars()-getNAssignedVariables(), (double) (getnTotVars()-getNAssignedVariables())*100/getnTotVars(),
+				getNAssignedVariables(), (double) getNAssignedVariables()*100/getnTotVars(),
+				numberRelations(), (double) numberRelations()*100/(getnTotVars()-1)
+				);
 	}
 	
 	public String relationsInfo() {
 		return qu.currentState();
+	}
+	
+	private int numberRelations() {
+		return getnTotVars()-qu.count();
 	}
 	
 	public String relationsInfoNormalized() {
@@ -246,5 +285,13 @@ public class Problem {
 	
 	private int normalizedVar(int idVar) {
 		return (idVar+1);
+	}
+	
+	/**
+	 * 
+	 * @return Number of variables for which the final value is known.
+	 */
+	private long getNAssignedVariables() {
+		return variables.values().stream().filter(Variable::isAssigned).count();
 	}
 }

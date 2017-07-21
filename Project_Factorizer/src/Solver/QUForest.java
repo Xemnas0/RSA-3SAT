@@ -197,7 +197,6 @@ public class QUForest {
 			parent[rootQ] = rootP;
 			size[rootP] += size[rootQ];
 		}
-		count--;
 	}
 
 	// rootP must be the one with the enemy
