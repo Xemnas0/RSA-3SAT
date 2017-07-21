@@ -28,7 +28,7 @@ public class Variable {
 	public boolean isAssigned() {
 		return assigned;
 	}
-	public boolean isValue() {
+	public boolean getValue() {
 		return value;
 	}
 	

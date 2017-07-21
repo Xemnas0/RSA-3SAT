@@ -31,7 +31,11 @@ public class Problem {
 	// a variable that has value=false
 	private int negVarId;
 	// number to factorize
-	private BigInteger product;
+	private BigInteger n;
+	// first prime factor
+	private BigInteger p;
+	// second prime factor
+	private BigInteger q;
 	
 	
 	public void solve() {
@@ -45,8 +49,13 @@ public class Problem {
 		
 		//System.out.println(this.printClauses());
 		// TODO to complete
+		
+		decodeResult();
+		
 		return;
 	}
+
+
 
 	private void sortClauses() {
 		Collections.sort(clauses, Comparator.comparing(Clause::totSize).thenComparing(Clause::getVarOfMonoClause));		
@@ -92,7 +101,7 @@ public class Problem {
 					System.out.println(line);
 					
 					if(numberLine == 4) {
-						
+						this.n = new BigInteger(fields[5]);
 					}
 					
 					continue;
@@ -100,9 +109,9 @@ public class Problem {
 
 				
 				if (line.startsWith("p")) {
-					nTotVars = Integer.decode(fields[2]);
-					nTotClauses = Integer.decode(fields[3]);
-					qu = new QUForest(nTotVars);
+					this.nTotVars = Integer.decode(fields[2]);
+					this.nTotClauses = Integer.decode(fields[3]);
+					this.qu = new QUForest(nTotVars);
 
 					for (int i = 0; i < nTotVars; ++i)
 						variables.put(i, new Variable(i));
@@ -294,4 +303,42 @@ public class Problem {
 	private long getNAssignedVariables() {
 		return variables.values().stream().filter(Variable::isAssigned).count();
 	}
+	
+	private void decodeResult() {
+		
+		int nBitProduct = n.bitLength();
+		int startIndexP = 0;
+		int endIndexP = nBitProduct-1-1;
+		int startIndexQ = endIndexP+1;
+		int endIndexQ = (int) (startIndexQ+ Math.ceil((double)nBitProduct/2))-1;
+		/*
+		System.out.println(String.format(
+				"nBitProduct: %d\n"
+				+ "startIndexP: %d\n"
+				+ "endIndexP: %d\n"
+				+ "startIndexQ: %d\n"
+				+ "endIndexQ: %d\n",
+				nBitProduct,
+				startIndexP,
+				endIndexP,
+				startIndexQ,
+				endIndexQ));
+		*/
+		StringBuilder p = new StringBuilder();
+		StringBuilder q = new StringBuilder();
+		
+		variables.subMap(startIndexP, endIndexP).values().stream().map(Variable::getValue).forEach(s->{
+			p.append((s ? "1" : "0"));
+		});
+		variables.subMap(startIndexQ, endIndexQ).values().stream().map(Variable::getValue).forEach(s->{
+			q.append((s ? "1" : "0"));
+		});
+		
+		this.p = new BigInteger(p.reverse().toString());
+		this.q = new BigInteger(q.reverse().toString());
+		
+		//System.out.println("pStr="+p+"\nqStr="+q);
+		//System.out.println("p="+this.p+"\nq="+this.q);
+	}
+	
 }
