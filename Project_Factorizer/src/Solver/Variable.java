@@ -35,5 +35,18 @@ public class Variable {
 	public int presentInNClauses() {
 		return clauses.size();
 	}
+
+	public void assignValue(boolean value) {
+
+		assigned=true;
+		this.value=value;
+		
+		clauses.stream().forEach(s->{
+			s.assignVariable(id, value);
+		});;
+		
+		//the variable now does not appear in any clause
+		clauses.clear();
+	}
 	
 }

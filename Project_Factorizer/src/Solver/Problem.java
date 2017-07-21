@@ -5,6 +5,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -22,12 +25,40 @@ public class Problem {
 	private int nTotVars;
 	// initial number of clauses
 	private int nTotClauses;
-
+	// a variable that has value=true
+	private int posVarId;
+	// a variable that has value=false
+	private int negVarId;
+	
 	public void solve() {
 
 		solveMonoClause();
+		cleanEmptyClause();
+		
+		//System.out.println(this.printClauses());
+		
+		sortClauses();
+		
+		System.out.println(this.printClauses());
 		// TODO to complete
 		return;
+	}
+
+	private void sortClauses() {
+		Collections.sort(clauses, Comparator.comparing(Clause::totSize).thenComparing(Clause::getVarOfMonoClause));		
+	}
+
+	private void cleanEmptyClause() {
+		
+		List<Clause> toRemove = new LinkedList<Clause>();
+		clauses.stream().filter(Clause::isSolved).forEach(s->{
+			toRemove.add(s);
+		});
+		
+		toRemove.stream().forEach(s->{
+			clauses.remove(s);
+		});
+		
 	}
 
 	/**
@@ -185,8 +216,8 @@ public class Problem {
 		List<Clause> negativeMonoClause = monoClauses.stream().filter(Clause::isNegativeMonoClause)
 				.collect(Collectors.toList());
 
-		int posVarId = positiveMonoClause.get(0).getVarOfMonoClause();
-		int negVarId = negativeMonoClause.get(0).getVarOfMonoClause();
+		posVarId = positiveMonoClause.get(0).getVarOfMonoClause();
+		negVarId = negativeMonoClause.get(0).getVarOfMonoClause();
 
 		positiveMonoClause.remove(0);
 		negativeMonoClause.remove(0);
@@ -201,14 +232,15 @@ public class Problem {
 
 		qu.disj(posVarId, negVarId);
 
-		clauses.stream().filter(Clause::isMonoClause).forEach(s -> {
-			assignVariable(s.getVars().get(0), s.getSigns().get(0).get(0));
+		monoClauses.stream().forEach(s -> {
+			assignVariable(s.getVarOfMonoClause(), s.isPositiveMonoClause());
 		});
 
 	}
 
 	private void assignVariable(int idVar, boolean value) {
-		System.out.println("Assegno a " + normalizedVar(idVar) + " il valore : " + value);
+		//System.out.println("Assegno a " + normalizedVar(idVar) + " il valore : " + value);
+		variables.get(idVar).assignValue(value);
 		return;
 	}
 	

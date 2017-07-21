@@ -1,6 +1,7 @@
 package Solver;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,21 +67,33 @@ public class Clause {
 
 	/**
 	 * 
-	 * @return true if the clause has only one column and one row, false
+	 * @return True if the clause has only one column and one row, false
 	 *         otherwise.
 	 */
 	public boolean isMonoClause() {
 		return vars.size() == 1 && signs.size() == 1;
 	}
 
+	/**
+	 * 
+	 * @return True if the only variable inside is positive, false otherwise.
+	 */
 	public boolean isPositiveMonoClause() {
 		return signs.get(0).get(0);
 	}
 
+	/**
+	 * 
+	 * @return True if the only variable inside is negative, false otherwise.
+	 */
 	public boolean isNegativeMonoClause() {
 		return !signs.get(0).get(0);
 	}
 
+	/**
+	 * 
+	 * @return The id of the only variable inside the clause.
+	 */
 	public int getVarOfMonoClause() {
 		return vars.get(0);
 	}
@@ -88,5 +101,34 @@ public class Clause {
 	public List<List<Boolean>> getSigns() {
 		return signs;
 	}
+	
+	public void assignVariable(int id, boolean value) {
+	
+		int column = vars.indexOf(id);
+		
+		//System.out.println("PRIMA:\n"+this.print());
+		for(int i=0; i <signs.size(); ++i){
+			
+			if(signs.get(i).get(column) == value) {
+				signs.remove(i);
+				--i; // to check;
+			}
+			else {
+				signs.get(i).remove(column);
+			}
+			
+		}
+		
+		vars.remove(column);
+		
+		//System.out.println("DOPO:\n"+this.print());
+	}
 
+	public boolean isSolved() {
+		return signs.size()==0;
+	}
+	
+	public int totSize() {
+		return signs.size()*vars.size();
+	}
 }
