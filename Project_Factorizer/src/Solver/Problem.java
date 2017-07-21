@@ -24,6 +24,8 @@ public class Problem {
 	private int nTotClauses;
 
 	public void solve() {
+
+		solveMonoClause();
 		// TODO to complete
 		return;
 	}
@@ -82,7 +84,7 @@ public class Problem {
 					// System.out.println("adding:\n" + clause.print());
 					// System.out.println("compare:\n"+clauses.get(clauses.size()-1).print());
 
-					clause.getVars().stream().map(s -> s - 1).forEach(s -> {
+					clause.getVars().stream().forEach(s -> {
 						// System.out.println("Incremento:\n" + (s + 1));
 						variables.get(s).addClause(clauses.get(clauses.size() - 1));
 					});
@@ -94,7 +96,7 @@ public class Problem {
 
 			// this is for the last row
 			clauses.add(clause);
-			clause.getVars().stream().map(s -> s - 1).forEach(s -> {
+			clause.getVars().stream().forEach(s -> {
 				// System.out.println("Incremento:\n"+(s+1));
 				variables.get(s).addClause(clauses.get(clauses.size() - 1));
 			});
@@ -122,8 +124,7 @@ public class Problem {
 	public String result() {
 		return null;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @return The initial number of variables in the problem.
@@ -131,7 +132,7 @@ public class Problem {
 	private int getnTotVars() {
 		return nTotVars;
 	}
-	
+
 	/**
 	 * 
 	 * @return The initial number of clauses in the problem.
@@ -139,16 +140,17 @@ public class Problem {
 	private int getnTotClauses() {
 		return nTotClauses;
 	}
-	
+
 	/**
 	 * 
-	 * @return The current number of (unsolved) clauses.</br>Group of clauses
-	 * with same variables but different sign are considered together.
+	 * @return The current number of (unsolved) clauses.</br>
+	 *         Group of clauses with same variables but different sign are
+	 *         considered together.
 	 */
 	private int getCurrentCompressedClause() {
 		return clauses.size();
 	}
-	
+
 	/**
 	 * 
 	 * @return The current number of (unsolved) clauses.
@@ -156,12 +158,61 @@ public class Problem {
 	private int getCurrentClause() {
 		return clauses.stream().collect(Collectors.summingInt(Clause::getNumInternalClauses));
 	}
-	
+
 	public String getInfo() {
-		return String.format("getCurrentClause(): %d\ngetCurrentCompressedClause(): %d\ngetnTotClauses(): %d\ngetnToVars(): %d\n",
-				getCurrentClause(),
-				getCurrentCompressedClause(),
-				getnTotClauses(),
-				getnTotVars());
+		return String.format(
+				"getCurrentClause(): %d\ngetCurrentCompressedClause(): %d\ngetnTotClauses(): %d\ngetnToVars(): %d\n",
+				getCurrentClause(), getCurrentCompressedClause(), getnTotClauses(), getnTotVars());
+	}
+	
+	public String relationsInfo() {
+		return qu.currentState();
+	}
+	
+	public String relationsInfoNormalized() {
+		return qu.currentStateNormalized();
+	}
+	
+	/**
+	 * Solve all the clauses that contains only one variable. Also performs the
+	 * operations regarding relations (quickunion and disjunction)
+	 */
+	private void solveMonoClause() {
+		List<Clause> monoClauses = clauses.stream().filter(Clause::isMonoClause).collect(Collectors.toList());
+
+		List<Clause> positiveMonoClause = monoClauses.stream().filter(Clause::isPositiveMonoClause)
+				.collect(Collectors.toList());
+		List<Clause> negativeMonoClause = monoClauses.stream().filter(Clause::isNegativeMonoClause)
+				.collect(Collectors.toList());
+
+		int posVarId = positiveMonoClause.get(0).getVarOfMonoClause();
+		int negVarId = negativeMonoClause.get(0).getVarOfMonoClause();
+
+		positiveMonoClause.remove(0);
+		negativeMonoClause.remove(0);
+
+		positiveMonoClause.stream().forEach(s -> {
+			qu.union(posVarId, s.getVarOfMonoClause());
+		});
+
+		negativeMonoClause.stream().forEach(s -> {
+			qu.union(negVarId, s.getVarOfMonoClause());
+		});
+
+		qu.disj(posVarId, negVarId);
+
+		clauses.stream().filter(Clause::isMonoClause).forEach(s -> {
+			assignVariable(s.getVars().get(0), s.getSigns().get(0).get(0));
+		});
+
+	}
+
+	private void assignVariable(int idVar, boolean value) {
+		System.out.println("Assegno a " + normalizedVar(idVar) + " il valore : " + value);
+		return;
+	}
+	
+	private int normalizedVar(int idVar) {
+		return (idVar+1);
 	}
 }

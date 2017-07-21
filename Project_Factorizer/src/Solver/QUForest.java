@@ -390,6 +390,77 @@ public class QUForest {
 		return ret;
 	}
 	
+	public String currentStateNormalized() {
+		StringBuilder[] v = new StringBuilder[n];
+		
+		
+		// management of equalities
+		for (int i = 0; i < n; ++i) {
+			if (i == parent[i]) { // he is parent of himself
+				if (v[i] == null) { // alone at the moment
+					v[i] = new StringBuilder((i+1));
+				} else {// already found a son
+						// do nothing
+				}
+			} else { // he is son of someone else
+				if (v[parent[i]] == null) { // the father has not been
+											// initialized
+					v[parent[i]] = new StringBuilder((parent[i]+1) + " = " + (i+1));
+				} else {
+					if (v[parent[i]].toString().isEmpty())
+						v[parent[i]].append((parent[i]+1));
+					v[parent[i]].append(" = " + (i+1));
+				}
+			}
+		}
+		
+		//System.out.println("prints before:\n" + Arrays.asList(v));
+		
+		for(int i=0; i < n; ++i) {
+			if(v[i] != null) {
+				if(!v[i].toString().isEmpty()) {
+					v[i] = new StringBuilder("("+v[i].toString()+")");
+				}
+			}
+		}
+		//System.out.println("prints after:\n" + Arrays.asList(v));
+		// management of inequalities
+		for (int i = 0; i < n; ++i) {
+
+			if (enemy[i] == -1)
+				continue;
+			if (v[i] == null)
+				continue; // should never happen
+
+			if (v[enemy[i]].toString().isEmpty()) { // if the parent enemy has
+													// not sons
+				if (v[i].toString().isEmpty())
+					v[i].append((i+1) + " != " + (enemy[i]+1));
+				else
+					v[i].append(" != " + v[enemy[i]]);
+			} else {
+				if (v[i].toString().isEmpty())
+					v[i].append((i+1) + " != " + v[enemy[i]].toString());
+				else
+					v[i].append(" != " + v[enemy[i]].toString());
+			}
+			v[enemy[i]] = null;
+		}
+		
+		/*
+		 * DEBUG
+		 */
+		/*
+		System.out.println("parent:\n"+Arrays.toString(parent));
+		System.out.println("enemy:\n" + Arrays.toString(enemy));
+		System.out.println("prints:\n" + Arrays.asList(v));
+		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
+		*/
+		
+		String ret = Arrays.asList(v).stream().filter(s -> s != null).filter(s -> !s.toString().isEmpty()).collect(Collectors.joining("\n"));
+		return ret;
+	}
+	
 	/**
 	 * Gives information about the total number of current existing relations.
 	 * @return A string containing {@code"xx,xx%"} that indicates </br>{@code (# of relations)/(# of variables)}
