@@ -324,20 +324,22 @@ public class QUForest {
 		
 		// management of equalities
 		for (int i = 0; i < n; ++i) {
-			if (i == parent[i]) { // he is parent of himself
+			int rootI = find(i);
+			if (i == rootI) { // he is parent of himself
 				if (v[i] == null) { // alone at the moment
 					v[i] = new StringBuilder(i);
 				} else {// already found a son
 						// do nothing
 				}
 			} else { // he is son of someone else
-				if (v[parent[i]] == null) { // the father has not been
+				
+				if (v[rootI] == null) { // the father has not been
 											// initialized
-					v[parent[i]] = new StringBuilder(parent[i] + " = " + i);
+					v[rootI] = new StringBuilder(rootI + " = " + i);
 				} else {
-					if (v[parent[i]].toString().isEmpty())
-						v[parent[i]].append(parent[i]);
-					v[parent[i]].append(" = " + i);
+					if (v[rootI].toString().isEmpty())
+						v[rootI].append(rootI);
+					v[rootI].append(" = " + i);
 				}
 			}
 		}
@@ -378,12 +380,12 @@ public class QUForest {
 		/*
 		 * DEBUG
 		 */
-		/*
+		
 		System.out.println("parent:\n"+Arrays.toString(parent));
 		System.out.println("enemy:\n" + Arrays.toString(enemy));
 		System.out.println("prints:\n" + Arrays.asList(v));
 		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
-		*/
+		
 		
 		String ret = Arrays.asList(v).stream().filter(s -> s != null).filter(s -> !s.toString().isEmpty()).collect(Collectors.joining("\n"));
 		return ret;
