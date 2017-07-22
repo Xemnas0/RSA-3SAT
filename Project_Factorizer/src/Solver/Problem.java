@@ -39,43 +39,28 @@ public class Problem {
 	// second prime factor
 	private BigInteger q;
 	// position of p and q in variables
-	int startIndexP, endIndexP, startIndexQ, endIndexQ;
+	private int startIndexP, endIndexP, startIndexQ, endIndexQ;
 	
 	
 	public void solve() {
 		
+		// first phase
 		solveMonoClause();
 		cleanEmptyClause();
 		sortClauses();
-		//System.out.println("BeforeBefore:\n"+this.printPresentsOfVariables());
-		//System.out.println(this.printClauses());
+		
+		// assigning 2 values
 		firstBitIsOne();
-		
-		//System.out.println(this.printClauses());
-		
+		cleanEmptyClause();
 		sortClauses();
 		
-		//System.out.println(this.printClauses());
 		
-		//System.out.println("Before:\n"+this.printPresentsOfVariables());
-		List<Clause> toRemove = new ArrayList<Clause>();
-		clauses.stream().filter(s->s.nColumn()==2).forEach(s->{
-			int whatToDo = s.whatToDo();
-			doWhatMustbeDone(whatToDo, s);
-			toRemove.add(s);
-		});
-		
-		toRemove.stream().forEach(s->{
-			s.emptyVarOfClause();
-			clauses.remove(s);
-		});
-		
-		//System.out.println("After:\n"+this.printPresentsOfVariables());
+		// second phase
+		solveClausesTwoByTwo();
 		sortClauses();
-		//System.out.println(this.printClauses());
-		//System.out.println(this.printClauses());
-		//System.out.println(this.relationsInfo());
-		//System.out.println(this.getInfo());
+		
+		System.out.println(this.relationsInfo());
+		solveClausesFourByTwo();
 		
 		// TODO to complete
 		
@@ -93,6 +78,30 @@ public class Problem {
 		return;
 	}
 	
+	private void solveClausesFourByTwo() {
+
+		clauses.stream().filter(Clause::hasRelation).filter(s->s.totSize()==12).forEach(s->{
+			System.out.println("Ha relazione:\n"+s.print());
+			System.out.println("E' di tipo: "+s.getGroupType());
+		});
+		
+	}
+
+	private void solveClausesTwoByTwo() {
+		
+		List<Clause> toRemove = new ArrayList<Clause>();
+		clauses.stream().filter(s->s.nColumn()==2).forEach(s->{
+			int whatToDo = s.solveClauseTwoByTwo();
+			doWhatMustbeDone(whatToDo, s);
+			toRemove.add(s);
+		});
+		
+		toRemove.stream().forEach(s->{
+			s.emptyVarOfClause();
+			clauses.remove(s);
+		});
+	}
+
 	private void doWhatMustbeDone(int whatToDo, Clause clause) {
 		
 		List<Integer> vars = clause.getVars();
@@ -234,7 +243,12 @@ public class Problem {
 		} catch (IOException e) {
 			System.err.println("Error during file reading: " + path);
 		}
-
+		
+		//TODO can be parallelized
+		clauses.stream().forEach(s->{
+			s.evaluateGroupType();
+		});
+		
 		long t2 = System.nanoTime();
 		
 		initializeIndexResult();
@@ -432,5 +446,9 @@ public class Problem {
 	
 	public SortedMap<Integer, Variable> getVarsMap() {
 		return variables;
+	}
+
+	public QUForest getQu() {
+		return qu;
 	}
 }
