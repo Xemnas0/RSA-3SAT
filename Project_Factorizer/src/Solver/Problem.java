@@ -64,7 +64,7 @@ public class Problem {
 		//System.out.println(this.relationsInfo());
 		System.out.println(this.getInfo());
 		//System.out.println("SITUAZIONE CLAUSES:\n"+this.printClauses());
-		solveClausesFourByTwo();
+		solveClausesFourByThree();
 		System.out.println(this.getInfo());
 		cleanEmptyClause();
 		sortClauses();
@@ -84,13 +84,13 @@ public class Problem {
 		return;
 	}
 	
-	private void solveClausesFourByTwo() {
+	private void solveClausesFourByThree() {
 
 		clauses.stream().filter(s->s.nColumns()==3).filter(s->s.nRows()==4).filter(Clause::hasRelation).forEach(s->{
 			
 			//System.out.println("Prima:\n"+s.print());
 			
-			int whatToDo = s.solveClauseFourByTwo();
+			int whatToDo = s.solveClauseFourByThree();
 			
 			//System.out.println("Eseguo op "+whatToDo+" per "+s.getGroupType());
 			if(s.getGroupType() == GroupType.MostFalse)

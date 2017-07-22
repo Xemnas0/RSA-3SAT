@@ -283,7 +283,7 @@ public class Clause {
 	 * 
 	 * @return An int from 0 to 11, 0..5 for case 1), 6..11 for case 2).
 	 */
-	public int solveClauseFourByTwo() {
+	public int solveClauseFourByThree() {
 
 		if (groupType == GroupType.MostFalse)
 			return solveMostFalse();
