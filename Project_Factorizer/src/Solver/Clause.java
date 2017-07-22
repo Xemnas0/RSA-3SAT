@@ -138,11 +138,15 @@ public class Clause {
 	}
 
 	public int totSize() {
-		return signs.size() * vars.size();
+		return nColumns() * nRows();
 	}
 
-	public int nColumn() {
+	public int nColumns() {
 		return vars.size();
+	}
+	
+	public int nRows() {
+		return signs.size();
 	}
 
 	/**
@@ -235,7 +239,7 @@ public class Clause {
 	public void evaluateGroupType() {
 
 		long nTrue = signs.stream().flatMap(s -> s.stream()).filter(s -> s.booleanValue()).count();
-		System.out.println("NumTrue: " + nTrue);
+		
 		if (nTrue == 5)
 			groupType = GroupType.MostFalse;
 		else
@@ -292,21 +296,33 @@ public class Clause {
 		QUForest quForest = problem.getQu();
 
 		if (quForest.connected(vars.get(0), vars.get(1))) {
+			signs.remove(2);
+			signs.remove(1);
 			return 0;
 		}
 		if (quForest.areEnemy(vars.get(0), vars.get(1))) {
+			signs.remove(3);
+			signs.remove(0);
 			return 1;
 		}
 		if (quForest.connected(vars.get(1), vars.get(2))) {
+			signs.remove(1);
+			signs.remove(0);
 			return 2;
 		}
 		if (quForest.areEnemy(vars.get(1), vars.get(2))) {
+			signs.remove(3);
+			signs.remove(2);
 			return 3;
 		}
 		if (quForest.connected(vars.get(0), vars.get(2))) {
+			signs.remove(2);
+			signs.remove(0);
 			return 4;
 		}
 		if (quForest.areEnemy(vars.get(0), vars.get(2))) {
+			signs.remove(3);
+			signs.remove(1);
 			return 5;
 		}
 
@@ -318,26 +334,28 @@ public class Clause {
 		QUForest quForest = problem.getQu();
 
 		if (quForest.connected(vars.get(0), vars.get(1))) {
-			signs.remove(1);
 			signs.remove(2);
+			signs.remove(1);
 			return 0;
 		}
 		if (quForest.areEnemy(vars.get(0), vars.get(1))) {
+			signs.remove(3);
+			signs.remove(0);
 			return 1;
 		}
 		if (quForest.connected(vars.get(1), vars.get(2))) {
-			signs.remove(0);
-			signs.remove(2);
 			signs.remove(3);
+			signs.remove(2);
+			signs.remove(0);
 			return 2;
 		}
 		if (quForest.areEnemy(vars.get(1), vars.get(2))) {
 			return 3;
 		}
 		if (quForest.connected(vars.get(0), vars.get(2))) {
-			signs.remove(0);
-			signs.remove(1);
 			signs.remove(3);
+			signs.remove(1);
+			signs.remove(0);
 			return 4;
 		}
 		if (quForest.areEnemy(vars.get(0), vars.get(2))) {
