@@ -61,9 +61,13 @@ public class Problem {
 		solveClausesTwoByTwo();
 		sortClauses();
 		
-		System.out.println(this.relationsInfo());
+		//System.out.println(this.relationsInfo());
+		System.out.println(this.getInfo());
+		//System.out.println("SITUAZIONE CLAUSES:\n"+this.printClauses());
 		solveClausesFourByTwo();
-		
+		System.out.println(this.getInfo());
+		cleanEmptyClause();
+		sortClauses();
 		// TODO to complete
 		
 		
@@ -82,16 +86,18 @@ public class Problem {
 	
 	private void solveClausesFourByTwo() {
 
-		clauses.stream().filter(Clause::hasRelation).filter(s->s.totSize()==12).forEach(s->{
-			System.out.println("Ha relazione:\n"+s.print());
-			System.out.println("E' di tipo: "+s.getGroupType());
+		clauses.stream().filter(s->s.nColumns()==3).filter(s->s.nRows()==4).filter(Clause::hasRelation).forEach(s->{
+			
+			//System.out.println("Prima:\n"+s.print());
+			
 			int whatToDo = s.solveClauseFourByTwo();
 			
+			//System.out.println("Eseguo op "+whatToDo+" per "+s.getGroupType());
 			if(s.getGroupType() == GroupType.MostFalse)
 				solveMostFalseClause(whatToDo, s);
 			else
 				solveMostTrueClause(whatToDo, s);
-			
+			//System.out.println("Dopo:\n"+s.print());
 		});
 		
 	}
@@ -170,7 +176,7 @@ public class Problem {
 	private void solveClausesTwoByTwo() {
 		
 		List<Clause> toRemove = new ArrayList<Clause>();
-		clauses.stream().filter(s->s.nColumn()==2).forEach(s->{
+		clauses.stream().filter(s->s.nColumns()==2).forEach(s->{
 			int whatToDo = s.solveClauseTwoByTwo();
 			doWhatMustbeDone(whatToDo, s);
 			toRemove.add(s);
