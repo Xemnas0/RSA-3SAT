@@ -355,6 +355,13 @@ public class QUForest {
 		}
 		//System.out.println("prints after:\n" + Arrays.asList(v));
 		// management of inequalities
+		
+		System.out.println("parent:\n"+Arrays.toString(parent));
+		System.out.println("enemy:\n" + Arrays.toString(enemy));
+		System.out.println("prints:\n" + Arrays.asList(v));
+		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
+		
+		
 		for (int i = 0; i < n; ++i) {
 
 			if (enemy[i] == -1)
@@ -367,7 +374,7 @@ public class QUForest {
 				if (v[i].toString().isEmpty())
 					v[i].append(i + " != " + enemy[i]);
 				else
-					v[i].append(" != " + v[enemy[i]]);
+					v[i].append(" != " + enemy[i]);
 			} else {
 				if (v[i].toString().isEmpty())
 					v[i].append(i + " != " + v[enemy[i]].toString());
