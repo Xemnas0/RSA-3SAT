@@ -248,7 +248,7 @@ public class Clause {
 
 	/**
 	 * This method is called only for grouped Clause of dimension 4x2. It says
-	 * what to do depending on the situation. CASE 1) </br>
+	 * what to do depending on the situation.</br> CASE 1) </br>
 	 * ....1 2 3</br>
 	 * A + + -</br>
 	 * B + - -</br>

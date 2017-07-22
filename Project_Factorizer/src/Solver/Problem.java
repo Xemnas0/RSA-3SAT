@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 import com.sun.javafx.binding.SelectBinding.AsString;
 
+import Solver.Clause.GroupType;
+
 public class Problem {
 
 	// map <IdVar, Var>
@@ -83,7 +85,85 @@ public class Problem {
 		clauses.stream().filter(Clause::hasRelation).filter(s->s.totSize()==12).forEach(s->{
 			System.out.println("Ha relazione:\n"+s.print());
 			System.out.println("E' di tipo: "+s.getGroupType());
+			int whatToDo = s.solveClauseFourByTwo();
+			
+			if(s.getGroupType() == GroupType.MostFalse)
+				solveMostFalseClause(whatToDo, s);
+			else
+				solveMostTrueClause(whatToDo, s);
+			
 		});
+		
+	}
+
+	private void solveMostTrueClause(int whatToDo, Clause clause) {
+		// TODO Auto-generated method stub
+		List<Integer> vars = clause.getVars();
+		int v1=vars.get(0);
+		int v2=vars.get(1);
+		int v3=vars.get(2);
+		
+		switch (whatToDo) {
+		case 0:
+			assignVariable(v3, false);
+			break;
+		case 1:
+			assignVariable(v3, true);
+			break;
+		case 2:
+			assignVariable(v1, false);
+			break;
+		case 3:
+			assignVariable(v1, true);
+			break;
+		case 4:
+			assignVariable(v2, false);
+			break;
+		case 5:
+			assignVariable(v2, true);
+			break;
+		default:
+			System.err.println("Error in Problem.solveMostTrueClause()");
+			break;
+		}
+	}
+
+	private void solveMostFalseClause(int whatToDo, Clause clause) {
+		// TODO Auto-generated method stub
+		
+		List<Integer> vars = clause.getVars();
+		int v1=vars.get(0);
+		int v2=vars.get(1);
+		int v3=vars.get(2);
+		
+		switch (whatToDo) {
+		case 0:
+			qu.union(v2, v3);
+			break;
+		case 1:
+			assignVariable(v3, false);
+			break;
+		case 2:
+			//nothing
+			break;
+		case 3:
+			assignVariable(v1, false);
+			assignVariable(v2, true);
+			assignVariable(v3, false);
+			break;
+		case 4:
+			//nothing
+			break;
+		case 5:
+			assignVariable(v1, true);
+			assignVariable(v2, false);
+			assignVariable(v3, true);
+			break;
+		default:
+			System.err.println("Error in Problem.solveMostFalseClause()");
+			break;
+		}
+		
 		
 	}
 
