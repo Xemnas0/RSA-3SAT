@@ -50,27 +50,41 @@ public class Problem {
 		solveMonoClause();
 		cleanEmptyClause();
 		sortClauses();
+		//System.out.println(this.relationsInfo()+"\n");
 		
 		// assigning 2 values
 		firstBitIsOne();
 		cleanEmptyClause();
 		sortClauses();
 		
+		//System.out.println(this.relationsInfo()+"\n");
 		
 		// second phase
-		solveClausesTwoByTwo();
-		sortClauses();
+		for (int i = 0; i < 3; i++) {
+			solveClausesTwoByTwo();
+			cleanEmptyClause();
+			sortClauses();
+			
+			//System.out.println(this.relationsInfo()+"\n");
+			//System.out.println(this.getInfo());
+			//System.out.println("SITUAZIONE CLAUSES:\n"+this.printClauses());
+			solveClausesFourByThree();
+			cleanEmptyClause();
+			sortClauses();
+			
+			assignKnownVars();
+			cleanEmptyClause();
+			sortClauses();
+		}
 		
+		
+		//System.out.println(this.getInfo());
 		//System.out.println(this.relationsInfo());
-		System.out.println(this.getInfo());
-		//System.out.println("SITUAZIONE CLAUSES:\n"+this.printClauses());
-		solveClausesFourByThree();
-		System.out.println(this.getInfo());
-		cleanEmptyClause();
-		sortClauses();
-		// TODO to complete
+		// TODO Aggiungere l'assegnazione delle variabili che si sono unite od opposte a posVarId e negVarId. 
+		// Trovare prima i padri di queste due, e poi vede chi è figlio di questi padri e non è assegnato.
 		
-		
+		//System.out.println("posVar: "+posVarId);
+		//System.out.println("negVar: "+negVarId);
 		
 		decodeResult();
 		
@@ -84,20 +98,55 @@ public class Problem {
 		return;
 	}
 	
+	/**
+	 * Assigns the variables that are equals to a known variable.</br>
+	 * Example:</br>
+	 * 1 = 4 </br>
+	 * 4 = unknown</br>
+	 * 1 = true.</br>
+	 * Then (4 = true) => assign(4, true).
+	 */
+	private void assignKnownVars() {
+		// TODO Auto-generated method stub
+		int rootTrue = qu.find(posVarId);
+		int rootFalse = qu.find(negVarId);
+		
+		variables.values().stream().filter(s-> !s.isAssigned()).forEach(s->{
+			
+			int id = s.getId();
+			int root = qu.find(id);
+			
+			if(root == rootTrue) {
+				assignVariable(id, true);
+				System.out.println("Variable with ID="+id+" assigne to true.");
+			}
+				
+			
+			if(root == rootFalse) {
+				assignVariable(id, false);
+				System.out.println("Variable with ID="+id+" assigne to false.");
+			}
+				
+			
+			
+		});
+		
+	}
+
 	private void solveClausesFourByThree() {
 
 		clauses.stream().filter(s->s.nColumns()==3).filter(s->s.nRows()==4).filter(Clause::hasRelation).forEach(s->{
 			
-			//System.out.println("Prima:\n"+s.print());
+			System.out.println("Prima:\n"+s.print());
 			
 			int whatToDo = s.solveClauseFourByThree();
 			
-			//System.out.println("Eseguo op "+whatToDo+" per "+s.getGroupType());
+			System.out.println("Eseguo op "+whatToDo+" per "+s.getGroupType());
 			if(s.getGroupType() == GroupType.MostFalse)
 				solveMostFalseClause(whatToDo, s);
 			else
 				solveMostTrueClause(whatToDo, s);
-			//System.out.println("Dopo:\n"+s.print());
+			System.out.println("Dopo:\n"+s.print());
 		});
 		
 	}
@@ -105,6 +154,9 @@ public class Problem {
 	private void solveMostTrueClause(int whatToDo, Clause clause) {
 		// TODO Auto-generated method stub
 		List<Integer> vars = clause.getVars();
+		
+		
+		
 		int v1=vars.get(0);
 		int v2=vars.get(1);
 		int v3=vars.get(2);
@@ -135,9 +187,9 @@ public class Problem {
 	}
 
 	private void solveMostFalseClause(int whatToDo, Clause clause) {
-		// TODO Auto-generated method stub
 		
 		List<Integer> vars = clause.getVars();
+		
 		int v1=vars.get(0);
 		int v2=vars.get(1);
 		int v3=vars.get(2);
@@ -145,6 +197,9 @@ public class Problem {
 		switch (whatToDo) {
 		case 0:
 			qu.union(v2, v3);
+			//TODO check if it is right to eliminate the clause
+			//clause.emptyVarOfClause();
+			//clauses.remove(clause);
 			break;
 		case 1:
 			assignVariable(v3, false);
@@ -176,7 +231,7 @@ public class Problem {
 	private void solveClausesTwoByTwo() {
 		
 		List<Clause> toRemove = new ArrayList<Clause>();
-		clauses.stream().filter(s->s.nColumns()==2).forEach(s->{
+		clauses.stream().filter(s->s.nColumns()==2).filter(s->s.nRows()==2).forEach(s->{
 			int whatToDo = s.solveClauseTwoByTwo();
 			doWhatMustbeDone(whatToDo, s);
 			toRemove.add(s);
@@ -477,8 +532,18 @@ public class Problem {
 
 	private void assignVariable(int idVar, boolean value) {
 		//System.out.println("Assegno a " + normalizedVar(idVar) + " il valore : " + value);
+		//TODO modify, implement union with rootTrue e rootFalse
+		
+		int rootTrue = qu.find(posVarId);
+		int rootFalse = qu.find(negVarId);
+		
 		variables.get(idVar).assignValue(value);
-		return;
+		
+		if(value == true) {
+			qu.union(idVar, rootTrue);
+		}
+		else
+			qu.union(idVar, rootFalse);
 	}
 	
 	private int normalizedVar(int idVar) {

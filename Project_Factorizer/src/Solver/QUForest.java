@@ -355,12 +355,12 @@ public class QUForest {
 		}
 		//System.out.println("prints after:\n" + Arrays.asList(v));
 		// management of inequalities
-		
+		/*
 		System.out.println("parent:\n"+Arrays.toString(parent));
 		System.out.println("enemy:\n" + Arrays.toString(enemy));
 		System.out.println("prints:\n" + Arrays.asList(v));
 		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
-		
+		*/
 		
 		for (int i = 0; i < n; ++i) {
 
@@ -387,12 +387,12 @@ public class QUForest {
 		/*
 		 * DEBUG
 		 */
-		
+		/*
 		System.out.println("parent:\n"+Arrays.toString(parent));
 		System.out.println("enemy:\n" + Arrays.toString(enemy));
 		System.out.println("prints:\n" + Arrays.asList(v));
 		System.out.println("#nonNull: " + Arrays.asList(v).stream().filter(s -> s != null).count());
-		
+		*/
 		
 		String ret = Arrays.asList(v).stream().filter(s -> s != null).filter(s -> !s.toString().isEmpty()).collect(Collectors.joining("\n"));
 		return ret;

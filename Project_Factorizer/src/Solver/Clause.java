@@ -134,7 +134,7 @@ public class Clause {
 	}
 
 	public boolean isSolved() {
-		return signs.size() == 0;
+		return (signs.size() == 0 || vars.size()==0);
 	}
 
 	public int totSize() {
@@ -214,6 +214,8 @@ public class Clause {
 		vars.stream().forEach(s -> {
 			tmpMap.get(s).removeClause(this);
 		});
+		
+		vars.clear();
 	}
 
 	/**
