@@ -49,42 +49,63 @@ public class Problem {
 		sortClauses();
 		
 		// first phase
+		System.out.println("STEP 1: MONOCLAUSE");
 		solveMonoClause();
 		cleanEmptyClause();
 		sortClauses();
+		System.out.println(this.getInfo());
 		
-		
+		System.out.println("STEP 2: LSB ASSIGNMENT");
 		// assigning 2 values
-		firstBitIsOne();
-		
-		assignVariable(23, false);
-		assignVariable(22, false);
-		assignVariable(21, false);
-		assignVariable(20, false);
-		assignVariable(19, false);
-		
-		
+		firstBitIsOne();		
 		cleanEmptyClause();
 		sortClauses();
+		System.out.println(this.getInfo());
 		
+		System.out.println("STEP 3: LENGTH DIFFERENCE");
+		supposeDiffLength(0);
+		System.out.println(this.getInfo());
 		// second phase
 		
-		for(int i=0; i < 5; ++i) {
+		int currentProgress;
+		int previousProgress= numberRelations();;
+		
+		for(int i=0; i < 1000000; ++i) {
+			
+			
+			
+			
+			//System.out.println("STEP 4: TWO BY TWO");
 			solveClausesTwoByTwo();
 			cleanEmptyClause();
 			sortClauses();
+			//System.out.println(this.getInfo());
 			
+			//System.out.println("STEP 5: FOUR BY THREE");
 			solveClausesFourByThree();
 			cleanEmptyClause();
 			sortClauses();
+			//System.out.println(this.getInfo());
 			
+			//System.out.println("STEP 6: MONOCLAUSE");
 			solveMonoClause();
 			cleanEmptyClause();
 			sortClauses();
+			//System.out.println(this.getInfo());
 			
+			//System.out.println("STEP 7: KNOWN VARIABLES");
 			assignKnownVars();
 			cleanEmptyClause();
 			sortClauses();
+			System.out.println("\nCYCLE #"+i+"\n"+this.getInfo());
+			
+			currentProgress = numberRelations();
+			
+			//no progress
+			if(currentProgress == previousProgress) break;
+			//else
+			previousProgress=currentProgress;
+			
 			
 		}
 
@@ -139,13 +160,13 @@ public class Problem {
 			
 			if(root == rootTrue) {
 				assignVariable(id, true);
-				System.out.println("Variable with ID="+id+" assigned to true.");
+				//System.out.println("Variable with ID="+id+" assigned to true.");
 			}
 				
 			
 			if(root == rootFalse) {
 				assignVariable(id, false);
-				System.out.println("Variable with ID="+id+" assigned to false.");
+				//System.out.println("Variable with ID="+id+" assigned to false.");
 			}
 				
 		});
@@ -156,16 +177,16 @@ public class Problem {
 
 		clauses.stream().filter(s->s.nColumns()==3).filter(s->s.nRows()==4).filter(Clause::hasRelation).forEach(s->{
 			
-			System.out.println("Prima:\n"+s.print());
+			//System.out.println("Prima:\n"+s.print());
 			
 			int whatToDo = s.solveClauseFourByThree();
 			
-			System.out.println("Eseguo op "+whatToDo+" per "+s.getGroupType());
+			//System.out.println("Eseguo op "+whatToDo+" per "+s.getGroupType());
 			if(s.getGroupType() == GroupType.MostFalse)
 				solveMostFalseClause(whatToDo, s);
 			else
 				solveMostTrueClause(whatToDo, s);
-			System.out.println("Dopo:\n"+s.print());
+			//System.out.println("Dopo:\n"+s.print());
 		});
 		
 	}
@@ -628,5 +649,41 @@ public class Problem {
 
 	public QUForest getQu() {
 		return qu;
+	}
+	
+	private void supposeDiffLength(int diff) {
+		
+		int realLenP, realLenQ;
+		
+		int lengthN = n.bitLength();
+		
+		/*
+	     * The following equations come from:
+	     * LenP+LenQ = LenN
+	     * LenP-LenQ = difference
+	     */
+		//TODO to check correctness
+	    realLenP = (int)Math.ceil((double)(lengthN + diff) / 2);
+	    realLenQ = (int)Math.ceil((double)(lengthN - diff) / 2);
+		
+	    /*
+	     *   
+	     *   int startIndexP = realLenP, startIndexQ = structLenP + realLenQ;
+	     *   int endIndexP = structLenP - 1, endIndexQ = structLenP + structLenQ - 1;
+	     */
+	    int structLenP = endIndexP+1;
+	    int structLenQ = endIndexQ-startIndexQ+1;
+	    
+		int startZeroP = realLenP, startZeroQ = structLenP+realLenQ;
+		int endZeroP = structLenP-1, endZeroQ = structLenP+structLenQ-1;
+		
+		System.out.println("Setting Zero:\nP => ["+startZeroP+".."+endZeroP+"]");
+		System.out.println("Q => ["+startZeroQ+".."+endZeroQ+"]");
+
+
+		for(int i = startZeroP; i <= endZeroP; ++i)
+			assignVariable(i, false);
+		for(int i = startZeroQ; i <= endZeroQ; ++i)
+			assignVariable(i, false);
 	}
 }
