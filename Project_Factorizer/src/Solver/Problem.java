@@ -31,9 +31,9 @@ public class Problem {
 	// initial number of clauses
 	private int nTotClauses;
 	// a variable that has value=true
-	private int posVarId;
+	private int posVarId=-1;
 	// a variable that has value=false
-	private int negVarId;
+	private int negVarId=-1;
 	// number to factorize
 	private BigInteger n;
 	// first prime factor
@@ -46,45 +46,66 @@ public class Problem {
 	
 	public void solve() {
 		
+		sortClauses();
+		
 		// first phase
 		solveMonoClause();
 		cleanEmptyClause();
 		sortClauses();
-		//System.out.println(this.relationsInfo()+"\n");
+		
 		
 		// assigning 2 values
 		firstBitIsOne();
+		
+		assignVariable(23, false);
+		assignVariable(22, false);
+		assignVariable(21, false);
+		assignVariable(20, false);
+		assignVariable(19, false);
+		
+		
 		cleanEmptyClause();
 		sortClauses();
 		
-		//System.out.println(this.relationsInfo()+"\n");
-		
 		// second phase
-		for (int i = 0; i < 3; i++) {
+		
+		for(int i=0; i < 5; ++i) {
 			solveClausesTwoByTwo();
 			cleanEmptyClause();
 			sortClauses();
 			
-			//System.out.println(this.relationsInfo()+"\n");
-			//System.out.println(this.getInfo());
-			//System.out.println("SITUAZIONE CLAUSES:\n"+this.printClauses());
 			solveClausesFourByThree();
+			cleanEmptyClause();
+			sortClauses();
+			
+			solveMonoClause();
 			cleanEmptyClause();
 			sortClauses();
 			
 			assignKnownVars();
 			cleanEmptyClause();
 			sortClauses();
+			
 		}
+
 		
+
+
+			/*
+			 * TODO create another solve monoclause
+			solveMonoClause();
+			cleanEmptyClause();
+			sortClauses();
+			*/
+			//System.out.println("SITUAZIONE CLAUSES:\n"+this.printClauses());
+			//System.out.println(this.relationsInfo());
 		
 		//System.out.println(this.getInfo());
 		//System.out.println(this.relationsInfo());
-		// TODO Aggiungere l'assegnazione delle variabili che si sono unite od opposte a posVarId e negVarId. 
-		// Trovare prima i padri di queste due, e poi vede chi è figlio di questi padri e non è assegnato.
-		
-		//System.out.println("posVar: "+posVarId);
-		//System.out.println("negVar: "+negVarId);
+
+
+		System.out.println("posVar: "+posVarId);
+		System.out.println("negVar: "+negVarId);
 		
 		decodeResult();
 		
@@ -118,17 +139,15 @@ public class Problem {
 			
 			if(root == rootTrue) {
 				assignVariable(id, true);
-				System.out.println("Variable with ID="+id+" assigne to true.");
+				System.out.println("Variable with ID="+id+" assigned to true.");
 			}
 				
 			
 			if(root == rootFalse) {
 				assignVariable(id, false);
-				System.out.println("Variable with ID="+id+" assigne to false.");
+				System.out.println("Variable with ID="+id+" assigned to false.");
 			}
 				
-			
-			
 		});
 		
 	}
@@ -154,8 +173,6 @@ public class Problem {
 	private void solveMostTrueClause(int whatToDo, Clause clause) {
 		// TODO Auto-generated method stub
 		List<Integer> vars = clause.getVars();
-		
-		
 		
 		int v1=vars.get(0);
 		int v2=vars.get(1);
@@ -198,7 +215,7 @@ public class Problem {
 		case 0:
 			qu.union(v2, v3);
 			//TODO check if it is right to eliminate the clause
-			//clause.emptyVarOfClause();
+			clause.emptyVarOfClause();
 			//clauses.remove(clause);
 			break;
 		case 1:
@@ -410,7 +427,7 @@ public class Problem {
 
 
 	public String printClauses() {
-		return clauses.stream().map(s -> s.print()).collect(Collectors.joining("\n"));
+		return clauses.stream().map(s -> s.print()).collect(Collectors.joining(""));
 	}
 
 	public String printPresentsOfVariables() {
@@ -420,7 +437,7 @@ public class Problem {
 	}
 
 	public String result() {
-		return null;
+		return variables.values().stream().filter(s-> s.isAssigned()).map(s-> (s.getValue() ? "":"-")+(s.getId()+1) ).collect(Collectors.joining(" "));
 	}
 
 	/**
@@ -502,31 +519,40 @@ public class Problem {
 	 */
 	private void solveMonoClause() {
 		List<Clause> monoClauses = clauses.stream().filter(Clause::isMonoClause).collect(Collectors.toList());
-
+		
+		if(monoClauses.isEmpty()) return;
+		
+		//TODO clean code
 		List<Clause> positiveMonoClause = monoClauses.stream().filter(Clause::isPositiveMonoClause)
 				.collect(Collectors.toList());
 		List<Clause> negativeMonoClause = monoClauses.stream().filter(Clause::isNegativeMonoClause)
 				.collect(Collectors.toList());
-
-		posVarId = positiveMonoClause.get(0).getVarOfMonoClause();
-		negVarId = negativeMonoClause.get(0).getVarOfMonoClause();
-
-		positiveMonoClause.remove(0);
-		negativeMonoClause.remove(0);
-
+		
+		//if the default negative and positive variables are not assigned then they are defined
+		if(posVarId == -1) {
+			posVarId = positiveMonoClause.get(0).getVarOfMonoClause();
+			positiveMonoClause.remove(0);
+		}
+			
+		if(negVarId == -1) {
+			negVarId = negativeMonoClause.get(0).getVarOfMonoClause();
+			negativeMonoClause.remove(0);
+		}
+		
+		
+		if(positiveMonoClause.size() > 0)
 		positiveMonoClause.stream().forEach(s -> {
 			qu.union(posVarId, s.getVarOfMonoClause());
 		});
-
+		
+		if(negativeMonoClause.size() > 0)
 		negativeMonoClause.stream().forEach(s -> {
 			qu.union(negVarId, s.getVarOfMonoClause());
 		});
 
 		qu.disj(posVarId, negVarId);
 
-		monoClauses.stream().forEach(s -> {
-			assignVariable(s.getVarOfMonoClause(), s.isPositiveMonoClause());
-		});
+
 
 	}
 
@@ -561,34 +587,35 @@ public class Problem {
 	private void decodeResult() {
 		
 
-		/*
+		
 		System.out.println(String.format(
 				"nBitProduct: %d\n"
 				+ "startIndexP: %d\n"
 				+ "endIndexP: %d\n"
 				+ "startIndexQ: %d\n"
 				+ "endIndexQ: %d\n",
-				nBitProduct,
+				n.bitLength(),
 				startIndexP,
 				endIndexP,
 				startIndexQ,
 				endIndexQ));
-		*/
+		
 		StringBuilder p = new StringBuilder();
 		StringBuilder q = new StringBuilder();
 		
-		variables.subMap(startIndexP, endIndexP).values().stream().map(Variable::getValue).forEach(s->{
+		variables.subMap(startIndexP, endIndexP+1).values().stream().map(Variable::getValue).forEach(s->{
 			p.append((s ? "1" : "0"));
 		});
-		variables.subMap(startIndexQ, endIndexQ).values().stream().map(Variable::getValue).forEach(s->{
+		
+		variables.subMap(startIndexQ, endIndexQ+1).values().stream().map(Variable::getValue).forEach(s->{
 			q.append((s ? "1" : "0"));
 		});
 		
-		this.p = new BigInteger(p.reverse().toString());
-		this.q = new BigInteger(q.reverse().toString());
+		this.p = new BigInteger(p.reverse().toString(),2);
+		this.q = new BigInteger(q.reverse().toString(),2);
 		
-		//System.out.println("pStr="+p+"\nqStr="+q);
-		//System.out.println("p="+this.p+"\nq="+this.q);
+		System.out.println("pStr="+p+"\nqStr="+q);
+		System.out.println("p="+this.p+"\nq="+this.q);
 	}
 	
 	private boolean resultIsValid() {

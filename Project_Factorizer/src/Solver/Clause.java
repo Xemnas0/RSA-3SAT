@@ -52,7 +52,7 @@ public class Clause {
 			for (int j = 0; j < vars.size(); ++j) {
 
 				List<Boolean> tmpBV = signs.get(i);
-				ret.append(String.format("%s%d ", (tmpBV.get(j) ? "" : "-"), vars.get(j).intValue()));
+				ret.append(String.format("%s%d ", (tmpBV.get(j) ? " " : "-"), vars.get(j).intValue()));
 
 			}
 			ret.append("\n");
