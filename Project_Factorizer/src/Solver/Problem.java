@@ -685,5 +685,8 @@ public class Problem {
 			assignVariable(i, false);
 		for(int i = startZeroQ; i <= endZeroQ; ++i)
 			assignVariable(i, false);
+		
+		assignVariable(startZeroP-1, true);
+		assignVariable(startZeroQ-1, true);
 	}
 }
